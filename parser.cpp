@@ -123,7 +123,7 @@ void Parser::to_String() {
     printf("Certfile: %s\n", getCertfile().c_str());
     printf("Certdir: %s\n", getCertdir().c_str());
     printf("Only new: %s\n", onlyNew() ? "true" : "false");
-    printf("Only new: %s\n", onlyHeaders() ? "true" : "false");
+    printf("Only head: %s\n", onlyHeaders() ? "true" : "false");
     printf("Auth file: %s\n", getAuthFile().c_str());
     printf("Mailbox: %s\n", getMailbox().c_str());
     printf("Output dir: %s\n", getOutputDir().c_str());

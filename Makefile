@@ -2,13 +2,13 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -Wall -Wextra -std=c++11
+CXXFLAGS = -Wall -Wextra -std=c++14
 
 # Target executable name
 TARGET = imapcl
 
 # Source files
-SRCS = main.cpp parser.cpp error.cpp
+SRCS = main.cpp parser.cpp error.cpp clientWithoutTLS.cpp
 
 # Object files (generated from source files)
 OBJS = $(SRCS:.cpp=.o)

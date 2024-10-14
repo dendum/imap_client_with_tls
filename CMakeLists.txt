@@ -7,4 +7,7 @@ add_executable(imapcl main.cpp
         parser.cpp
         parser.h
         error.cpp
-        error.h)
+        error.h
+        client.h
+        clientWithoutTLS.cpp
+        clientWithoutTLS.h)
