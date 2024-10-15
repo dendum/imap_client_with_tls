@@ -12,11 +12,15 @@
 class ClientWithoutTLS : public Client {
 public:
     void connect(const std::string &server, int port) override;
+
     void disconnect() override;
+
+    void send(const std::string &message) override;
+
+    std::string receiveFromServer();
 
     ~ClientWithoutTLS() override;
 };
-
 
 
 #endif //CLIENTWITHOUTTLS_H

@@ -15,61 +15,43 @@
 
 using namespace std;
 
-string receiveFromServer(int sock, char *buffer, int bufferSize) {
-    std::memset(buffer, 0, bufferSize);
-    ssize_t bytesReceived = recv(sock, buffer, bufferSize - 1, 0);
-    if (bytesReceived > 0) {
-        buffer[bytesReceived] = '\0';
-        string response = buffer;
-        response = regex_replace(response, regex("\r"), "");
-        return response;
-    }
+void manualControl(ClientWithoutTLS &imap) {
+    string input;
+    while (true) {
+        cout << "Command> ";
+        getline(cin, input);
 
-    return "No response from server or connection closed.";
+        string formattedData = input + "\r\n";
+        imap.send(formattedData);
+        cout << imap.receiveFromServer();
+
+        if (input.find("LOGOUT") != std::string::npos) break;
+    }
 }
 
 int main(int argc, char **argv) {
     cout << "Hello, World!" << endl;
     Parser parser(argc, argv);
     parser.parse();
-    parser.to_String();
+    // parser.to_String();
 
+    /*** IMAP without TLS ***/
+    // unique_ptr<Client> imap = make_unique<ClientWithoutTLS>();
+    ClientWithoutTLS imap;
 
-    unique_ptr<Client> imap = make_unique<ClientWithoutTLS>();
+    cout << "Connecting to server..." << endl;
+    imap.connect(parser.getServer(), parser.getPort());
 
-    imap->connect(parser.getServer(), parser.getPort());
-
-    cout << "go to sleep" << endl;
-    sleep(5);
-    cout << "wake up" << endl;
-
-    imap->disconnect();
-
+    // TODO LOGIN
     // Send and receive data over IMAP connection
     // const char *login_command = "a1 LOGIN\r\n";
     // send(sock, login_command, strlen(login_command), 0);
-    /*
-    char buffer[1024];
-    string response = receiveFromServer(sock, buffer, sizeof(buffer));
-    cout << response;
 
-    string input;
+    manualControl(imap);
 
-    while (true) {
-        cout << "Command> ";
-        getline(cin, input);
+    imap.disconnect();
 
-        string formattedData = input + "\r\n";
-        send(sock, formattedData.c_str(), formattedData.size(), 0);
 
-        response = receiveFromServer(sock, buffer, sizeof(buffer));
-        cout << response;
-
-        if (input.find("LOGOUT") != std::string::npos) {
-            break;
-        }
-    }
-    */
 
     return 0;
 }
