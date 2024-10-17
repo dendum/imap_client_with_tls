@@ -43,10 +43,10 @@ void ClientWithoutTLS::connect(const std::string &server, int port) {
 
     string response = this->receiveFromServer();
     cout << response;
+    // if(message.find("+OK ") != -1)
     if (response.find("OK") == string::npos) {
         cerr << "Connection failed(response)";
     }
-
 }
 
 void ClientWithoutTLS::disconnect() {
@@ -66,9 +66,9 @@ void ClientWithoutTLS::send(const string &message) {
 }
 
 string ClientWithoutTLS::receiveFromServer() {
-    char buffer[1024] = {};
+    char buffer[2048] = {};
 
-    if (::recv(sock, buffer, 1024, 0) < 0) {
+    if (::recv(sock, buffer, 2048, 0) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
@@ -79,6 +79,23 @@ string ClientWithoutTLS::receiveFromServer() {
     return response;
 }
 
+void ClientWithoutTLS::login(const string &username, const string &password) {
+    string message = "a";
+    if (message_count < 10)
+        message.append("0");
+    message.append(to_string(message_count));
+    message_count++;
+    message.append(" LOGIN ").append(username).append(" ").append(password).append("\r\n");
+
+    send(message);
+
+    string response = this->receiveFromServer();
+    cout << response;
+    // if(message.find("+OK ") != -1)
+    if (response.find("Logged in") == string::npos) {
+        cerr << "Logging failed." << endl;
+    }
+}
 
 
 ClientWithoutTLS::~ClientWithoutTLS() {

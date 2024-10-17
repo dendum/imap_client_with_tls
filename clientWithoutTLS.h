@@ -17,9 +17,14 @@ public:
 
     void send(const std::string &message) override;
 
-    std::string receiveFromServer();
+    std::string receiveFromServer() override;
+
+    void login(const std::string &login, const std::string &password);
 
     ~ClientWithoutTLS() override;
+
+private:
+    int message_count = 1;
 };
 
 

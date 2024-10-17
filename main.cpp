@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
     cout << "Hello, World!" << endl;
     Parser parser(argc, argv);
     parser.parse();
+    parser.loadAuthData();
     // parser.to_String();
 
     /*** IMAP without TLS ***/
@@ -41,17 +42,11 @@ int main(int argc, char **argv) {
 
     cout << "Connecting to server..." << endl;
     imap.connect(parser.getServer(), parser.getPort());
-
-    // TODO LOGIN
-    // Send and receive data over IMAP connection
-    // const char *login_command = "a1 LOGIN\r\n";
-    // send(sock, login_command, strlen(login_command), 0);
+    imap.login(parser.getUsername(), parser.getPassword());
 
     manualControl(imap);
 
     imap.disconnect();
-
-
 
     return 0;
 }

@@ -8,7 +8,8 @@
 #include <ostream>
 #include <unistd.h>
 #include <cstdlib>
-
+#include <fstream>
+#include <regex>
 
 Parser::Parser(int argc, char **argv) {
     server = "";
@@ -21,6 +22,8 @@ Parser::Parser(int argc, char **argv) {
     auth_file = "";
     mailbox = "INBOX";
     output_dir = "";
+    username = "";
+    password = "";
 
     this->argc = argc;
     this->argv = argv;
@@ -74,6 +77,36 @@ void Parser::parse() {
     }
 }
 
+void Parser::loadAuthData() {
+    ifstream in(auth_file);
+
+    string line;
+
+    while (getline(in, line)) {
+        istringstream iss(line);
+        string key, eq, value;
+
+        iss >> key >> eq >> std::ws;
+        getline(iss, value);
+
+        if (eq != "=") {
+            cerr << "Invalid format: expected 'key = value' in line: " + line << endl;
+            // TODO: errors catcher
+            exit(0);
+        }
+
+        if (key == "username") {
+            this->username = regex_replace(value, regex("\r"), "");
+        } else if (key == "password") {
+            this->password = regex_replace(value, regex("\r"), "");
+        } else {
+            cerr << "Invalid format: expected 'username' or 'password'" << endl;
+            // TODO: errors catcher
+            exit(0);
+        }
+    }
+}
+
 string Parser::getServer() {
     return server;
 }
@@ -114,6 +147,14 @@ string Parser::getOutputDir() {
     return output_dir;
 }
 
+std::string Parser::getUsername() {
+    return username;
+}
+
+string Parser::getPassword() {
+    return password;
+}
+
 void Parser::to_String() {
     cout << "======= Args Info =======" << endl;
     printf("Count of arguments: %d\n", argc);
@@ -127,6 +168,7 @@ void Parser::to_String() {
     printf("Auth file: %s\n", getAuthFile().c_str());
     printf("Mailbox: %s\n", getMailbox().c_str());
     printf("Output dir: %s\n", getOutputDir().c_str());
+    printf("Username: %s\n", username.data());
+    printf("Password: %s\n", password.data());
     cout << "======= Args Info End =======" << endl;
 }
-

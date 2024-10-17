@@ -7,6 +7,9 @@ CXXFLAGS = -Wall -Wextra -std=c++14
 # Target executable name
 TARGET = imapcl
 
+# Arguments
+ARGS = eva.fit.vutbr.cz -a auth
+
 # Source files
 SRCS = main.cpp parser.cpp error.cpp clientWithoutTLS.cpp
 
@@ -30,7 +33,7 @@ clean:
 
 # Run the program
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) $(ARGS)
 
 # Rebuild by cleaning first, then building again
 rebuild: clean all

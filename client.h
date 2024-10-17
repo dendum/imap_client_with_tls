@@ -13,6 +13,8 @@ public:
 
     virtual void send(const std::string &string) = 0;
 
+    virtual std::string receiveFromServer() = 0;
+
     virtual ~Client() = default;
 
 protected:

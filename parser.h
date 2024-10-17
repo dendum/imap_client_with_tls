@@ -12,6 +12,8 @@ class Parser {
 public:
     Parser(int argc, char **argv);
     void parse();
+    void loadAuthData();
+
     string getServer();
     int getPort();
     bool useTLS();
@@ -22,6 +24,8 @@ public:
     string getAuthFile();
     string getMailbox();
     string getOutputDir();
+    std::string getUsername();
+    string getPassword();
 
     // Help func
     void to_String();
@@ -40,6 +44,8 @@ private:
     string auth_file;
     string mailbox = "INBOX";
     string output_dir;
+    string username;
+    string password;
 };
 
 
