@@ -66,9 +66,9 @@ void ClientWithoutTLS::send(const string &message) {
 }
 
 string ClientWithoutTLS::receiveFromServer() {
-    char buffer[2048] = {};
+    char buffer[4096] = {};
 
-    if (::recv(sock, buffer, 2048, 0) < 0) {
+    if (::recv(sock, buffer, 4096, 0) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
@@ -80,7 +80,7 @@ string ClientWithoutTLS::receiveFromServer() {
 }
 
 void ClientWithoutTLS::login(const string &username, const string &password) {
-    string message = "a";
+    string message = "A";
     if (message_count < 10)
         message.append("0");
     message.append(to_string(message_count));
@@ -91,10 +91,26 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
 
     string response = this->receiveFromServer();
     cout << response;
-    // if(message.find("+OK ") != -1)
-    if (response.find("Logged in") == string::npos) {
-        cerr << "Logging failed." << endl;
-    }
+    // TODO check OK response
+    // if(message.find("OK") != -1)
+    // if (response.find("Logged in") == string::npos) {
+        // cerr << "Logging failed." << endl;
+    // }
+}
+
+void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
+    string message = "A";
+    if (message_count < 10)
+        message.append("0");
+    message.append(to_string(message_count));
+    message_count++;
+    message.append(" SELECT ").append(mailbox).append(" ").append("\r\n");
+    send(message);
+
+    string response = this->receiveFromServer();
+    cout << response;
+    // TODO check OK response
+    // if(message.find("OK") != -1)
 }
 
 

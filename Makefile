@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -Wextra -std=c++14
 TARGET = imapcl
 
 # Arguments
-ARGS = eva.fit.vutbr.cz -a auth
+ARGS = imap.pobox.sk -a auth
 
 # Source files
 SRCS = main.cpp parser.cpp error.cpp clientWithoutTLS.cpp

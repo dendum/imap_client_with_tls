@@ -21,6 +21,8 @@ public:
 
     void login(const std::string &login, const std::string &password);
 
+    void selectMailbox(const std::string &mailbox);
+
     ~ClientWithoutTLS() override;
 
 private:
