@@ -66,9 +66,9 @@ void ClientWithoutTLS::send(const string &message) {
 }
 
 string ClientWithoutTLS::receiveFromServer() {
-    char buffer[4096] = {};
+    char buffer[8192] = {};
 
-    if (::recv(sock, buffer, 4096, 0) < 0) {
+    if (::recv(sock, buffer, 8192, 0) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
@@ -105,6 +105,22 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
     message.append(to_string(message_count));
     message_count++;
     message.append(" SELECT ").append(mailbox).append(" ").append("\r\n");
+    send(message);
+
+    string response = this->receiveFromServer();
+    cout << response;
+    // TODO check OK response
+    // if(message.find("OK") != -1)
+}
+
+void ClientWithoutTLS::getMessages() {
+    string message = "A";
+    if (message_count < 10)
+        message.append("0");
+    message.append(to_string(message_count));
+    message_count++;
+    message.append(" SEARCH ALL").append("\r\n");
+    // TODO flags i guess?
     send(message);
 
     string response = this->receiveFromServer();

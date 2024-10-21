@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
     imap.login(parser.getUsername(), parser.getPassword());
     cout << "Setting up..." << endl;
     imap.selectMailbox(parser.getMailbox());
+    cout << "Getting messages..." << endl;
+    imap.getMessages();
 
     manualControl(imap);
 

@@ -23,6 +23,8 @@ public:
 
     void selectMailbox(const std::string &mailbox);
 
+    void getMessages();
+
     ~ClientWithoutTLS() override;
 
 private:
