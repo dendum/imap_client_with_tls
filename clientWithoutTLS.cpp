@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <regex>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -80,11 +82,7 @@ string ClientWithoutTLS::receiveFromServer() {
 }
 
 void ClientWithoutTLS::login(const string &username, const string &password) {
-    string message = "A";
-    if (message_count < 10)
-        message.append("0");
-    message.append(to_string(message_count));
-    message_count++;
+    string message = formatMessageUID();
     message.append(" LOGIN ").append(username).append(" ").append(password).append("\r\n");
 
     send(message);
@@ -99,11 +97,7 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
 }
 
 void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
-    string message = "A";
-    if (message_count < 10)
-        message.append("0");
-    message.append(to_string(message_count));
-    message_count++;
+    string message = formatMessageUID();
     message.append(" SELECT ").append(mailbox).append(" ").append("\r\n");
     send(message);
 
@@ -114,11 +108,7 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
 }
 
 void ClientWithoutTLS::getMessages() {
-    string message = "A";
-    if (message_count < 10)
-        message.append("0");
-    message.append(to_string(message_count));
-    message_count++;
+    string message = formatMessageUID();
     message.append(" SEARCH ALL").append("\r\n");
     // TODO flags i guess?
     send(message);
@@ -127,6 +117,13 @@ void ClientWithoutTLS::getMessages() {
     cout << response;
     // TODO check OK response
     // if(message.find("OK") != -1)
+}
+
+string ClientWithoutTLS::formatMessageUID() {
+    // string maybe = std::format("A{:03}", message_count); !! c++20 !! somehow wsl problems??
+    ostringstream oss;
+    oss << "A" << std::setw(3) << setfill('0') << this->message_count++;
+    return oss.str();
 }
 
 

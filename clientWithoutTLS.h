@@ -25,6 +25,8 @@ public:
 
     void getMessages();
 
+    std::string formatMessageUID();
+
     ~ClientWithoutTLS() override;
 
 private:
