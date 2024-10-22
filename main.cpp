@@ -18,7 +18,7 @@ using namespace std;
 void manualControl(ClientWithoutTLS &imap) {
     string input;
     while (true) {
-        cout << "Command> ";
+        cout << "\nCommand> ";
         getline(cin, input);
 
         string formattedData = input + "\r\n";
@@ -44,11 +44,11 @@ int main(int argc, char **argv) {
 
     cout << "Connecting to server..." << endl;
     imap.connect(parser.getServer(), parser.getPort());
-    cout << "Logging..." << endl;
+    cout << "\nLogging..." << endl;
     imap.login(parser.getUsername(), parser.getPassword());
-    cout << "Setting up..." << endl;
+    cout << "\nSetting up..." << endl;
     imap.selectMailbox(parser.getMailbox());
-    cout << "Getting messages..." << endl;
+    cout << "\nGetting messages..." << endl;
     imap.getMessages();
 
     manualControl(imap);

@@ -60,6 +60,14 @@ void ClientWithoutTLS::disconnect() {
 }
 
 void ClientWithoutTLS::send(const string &message) {
+    cout << ">> ";
+    char a;
+    for (int i = 0; i < message.size(); i++) {
+        a = message[i];
+        if (a == '\r')
+            continue;
+        cout << message[i];
+    }
     if (::send(sock, message.c_str(), message.size(), 0) < 0) {
         cerr << "Send failed." << endl;
         // TODO: errors catcher
@@ -110,7 +118,7 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
 void ClientWithoutTLS::getMessages() {
     // get uid info
     string message = formatMessageUID();
-    message.append(" SEARCH ALL").append("\r\n");
+    message.append(" UID SEARCH ALL").append("\r\n");
     // TODO flags i guess?
     send(message);
 
@@ -121,11 +129,13 @@ void ClientWithoutTLS::getMessages() {
 
     // parse uids
     parseUIDStringResponse(response);
-    cout << "Our UIDS: ";
-    for (size_t it = 0; it < UIDs.size(); it++) {
-    cout << UIDs.at(it) << " ";
+    // cout << "Our UIDS: "; for (size_t it = 0; it < UIDs.size(); it++) {
+        // cout << UIDs.at(it) << " ";
+    // } cout << endl;
+
+    for (int uid : UIDs) {
+        loadMessage(uid);
     }
-    cout << endl;
 }
 
 void ClientWithoutTLS::parseUIDStringResponse(string &uidString) {
@@ -141,6 +151,20 @@ void ClientWithoutTLS::parseUIDStringResponse(string &uidString) {
             UIDs.push_back(uidInt);
         }
     }
+}
+
+void ClientWithoutTLS::loadMessage(int uid) {
+    cout << endl;
+    string message = formatMessageUID();
+    message.append(" UID FETCH ").append(to_string(uid)).append(" BODY[HEADER]").append("\r\n");
+    // TODO whole msg or only header
+    send(message);
+
+    string response = this->receiveFromServer();
+    cout << response;
+    // TODO check OK response
+    // if(message.find("OK") != -1)
+    // TODO saving to file
 }
 
 string ClientWithoutTLS::formatMessageUID() {

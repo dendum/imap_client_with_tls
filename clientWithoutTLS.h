@@ -28,6 +28,8 @@ public:
 
     void parseUIDStringResponse(std::string &uidString);
 
+    void loadMessage(int uid);
+
     std::string formatMessageUID();
 
     ~ClientWithoutTLS() override;
