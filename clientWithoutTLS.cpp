@@ -108,6 +108,7 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
 }
 
 void ClientWithoutTLS::getMessages() {
+    // get uid info
     string message = formatMessageUID();
     message.append(" SEARCH ALL").append("\r\n");
     // TODO flags i guess?
@@ -117,6 +118,29 @@ void ClientWithoutTLS::getMessages() {
     cout << response;
     // TODO check OK response
     // if(message.find("OK") != -1)
+
+    // parse uids
+    parseUIDStringResponse(response);
+    cout << "Our UIDS: ";
+    for (size_t it = 0; it < UIDs.size(); it++) {
+    cout << UIDs.at(it) << " ";
+    }
+    cout << endl;
+}
+
+void ClientWithoutTLS::parseUIDStringResponse(string &uidString) {
+    string searchLinePrefix = "* SEARCH ";
+
+    size_t pos = uidString.find(searchLinePrefix);
+    if (pos != string::npos) {
+        string uid = uidString.substr(pos + searchLinePrefix.size());
+        stringstream ss(uid);
+
+        int uidInt;
+        while (ss >> uidInt) {
+            UIDs.push_back(uidInt);
+        }
+    }
 }
 
 string ClientWithoutTLS::formatMessageUID() {

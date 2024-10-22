@@ -6,6 +6,7 @@
 #define CLIENTWITHOUTTLS_H
 
 #include <string>
+#include <vector>
 
 #include "client.h"
 
@@ -25,12 +26,15 @@ public:
 
     void getMessages();
 
+    void parseUIDStringResponse(std::string &uidString);
+
     std::string formatMessageUID();
 
     ~ClientWithoutTLS() override;
 
 private:
     int message_count = 1;
+    std::vector<int> UIDs = {};
 };
 
 
