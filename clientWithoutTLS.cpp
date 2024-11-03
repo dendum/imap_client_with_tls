@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <regex>
 #include <iomanip>
 #include <sstream>
@@ -44,6 +46,7 @@ void ClientWithoutTLS::connect(const std::string &server, int port) {
     }
 
     string response = this->receiveFromServer();
+    response = regex_replace(response, regex("\r"), "");
     cout << response;
     // if(message.find("+OK ") != -1)
     if (response.find("OK") == string::npos) {
@@ -76,16 +79,17 @@ void ClientWithoutTLS::send(const string &message) {
 }
 
 string ClientWithoutTLS::receiveFromServer() {
-    char buffer[8192] = {};
+    char buffer[16384] = {};
 
-    if (::recv(sock, buffer, 8192, 0) < 0) {
+    if (::recv(sock, buffer, 16384, 0) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
         exit(0);
     }
 
-    string response = regex_replace(buffer, regex("\r"), "");
+    string response = buffer;
+    // string response = regex_replace(buffer, regex("\r"), "");
     return response;
 }
 
@@ -96,11 +100,12 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
     send(message);
 
     string response = this->receiveFromServer();
+    response = regex_replace(response, regex("\r"), "");
     cout << response;
     // TODO check OK response
     // if(message.find("OK") != -1)
     // if (response.find("Logged in") == string::npos) {
-        // cerr << "Logging failed." << endl;
+    // cerr << "Logging failed." << endl;
     // }
 }
 
@@ -110,12 +115,13 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
     send(message);
 
     string response = this->receiveFromServer();
+    response = regex_replace(response, regex("\r"), "");
     cout << response;
     // TODO check OK response
     // if(message.find("OK") != -1)
 }
 
-void ClientWithoutTLS::getMessages() {
+void ClientWithoutTLS::getMessages(const string &output_dir) {
     // get uid info
     string message = formatMessageUID();
     message.append(" UID SEARCH ALL").append("\r\n");
@@ -123,6 +129,7 @@ void ClientWithoutTLS::getMessages() {
     send(message);
 
     string response = this->receiveFromServer();
+    response = regex_replace(response, regex("\r"), "");
     cout << response;
     // TODO check OK response
     // if(message.find("OK") != -1)
@@ -130,11 +137,11 @@ void ClientWithoutTLS::getMessages() {
     // parse uids
     parseUIDStringResponse(response);
     // cout << "Our UIDS: "; for (size_t it = 0; it < UIDs.size(); it++) {
-        // cout << UIDs.at(it) << " ";
+    // cout << UIDs.at(it) << " ";
     // } cout << endl;
 
-    for (int uid : UIDs) {
-        loadMessage(uid);
+    for (int uid: UIDs) {
+        loadMessage(uid, output_dir);
     }
 }
 
@@ -153,18 +160,44 @@ void ClientWithoutTLS::parseUIDStringResponse(string &uidString) {
     }
 }
 
-void ClientWithoutTLS::loadMessage(int uid) {
+void ClientWithoutTLS::loadMessage(int uid, const string &output_dir) {
     cout << endl;
-    string message = formatMessageUID();
-    message.append(" UID FETCH ").append(to_string(uid)).append(" BODY[HEADER]").append("\r\n");
-    // TODO whole msg or only header
-    send(message);
+    string result, header, body;
 
-    string response = this->receiveFromServer();
-    cout << response;
+    // Now whole msg => TODO only header
+    string message_1 = formatMessageUID();
+    message_1.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT Message-ID)]").append("\r\n");
+    send(message_1);
+    header = this->receiveFromServer();
     // TODO check OK response
-    // if(message.find("OK") != -1)
-    // TODO saving to file
+    parseMessage(header);
+
+    string message_2 = formatMessageUID();
+    message_2.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[1]").append("\r\n");
+    send(message_2);
+    body = this->receiveFromServer();
+    // TODO check OK response
+    parseMessage(body);
+
+    // response = regex_replace(response, regex("\r"), "");
+    // cout << response;
+
+    ofstream file(output_dir + "/msg" + to_string(uid) + ".txt");
+    file << header << body;
+}
+
+void ClientWithoutTLS::parseMessage(std::string &message) {
+    // message.erase(0, message.find("\r\n") + 2);
+    // message.erase(message.rfind(')'));
+    size_t pos = message.find("\r\n");
+    if (pos != std::string::npos) {
+        message.erase(0, pos + 2);
+
+        size_t lastParen = message.rfind(')');
+        if (lastParen != std::string::npos) {
+            message.erase(lastParen);
+        }
+    }
 }
 
 string ClientWithoutTLS::formatMessageUID() {

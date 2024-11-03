@@ -24,11 +24,13 @@ public:
 
     void selectMailbox(const std::string &mailbox);
 
-    void getMessages();
+    void getMessages(const std::string &output_dir);
 
     void parseUIDStringResponse(std::string &uidString);
 
-    void loadMessage(int uid);
+    void loadMessage(int uid, const std::string &output_dir);
+
+    void parseMessage(std::string &header);
 
     std::string formatMessageUID();
 

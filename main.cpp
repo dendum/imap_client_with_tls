@@ -23,7 +23,10 @@ void manualControl(ClientWithoutTLS &imap) {
 
         string formattedData = input + "\r\n";
         imap.send(formattedData);
-        cout << imap.receiveFromServer();
+        
+        string response = imap.receiveFromServer();
+        response = regex_replace(response, regex("\r"), "");
+        cout << response;
 
         if (input.find("LOGOUT") != std::string::npos) break;
     }
@@ -49,8 +52,7 @@ int main(int argc, char **argv) {
     cout << "\nSetting up..." << endl;
     imap.selectMailbox(parser.getMailbox());
     cout << "\nGetting messages..." << endl;
-    imap.getMessages();
-
+    imap.getMessages(parser.getOutputDir());
     manualControl(imap);
 
     imap.disconnect();

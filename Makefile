@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -Wextra -std=c++14
 TARGET = imapcl
 
 # Arguments
-ARGS = imap.pobox.sk -a auth
+ARGS = imap.pobox.sk -a auth -o cmake-build-debug/msgs
 
 # Source files
 SRCS = main.cpp parser.cpp error.cpp clientWithoutTLS.cpp
