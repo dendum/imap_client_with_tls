@@ -53,9 +53,10 @@ int main(int argc, char **argv) {
     imap.selectMailbox(parser.getMailbox());
     cout << "\nGetting messages..." << endl;
     imap.getMessages(parser.getOutputDir());
-    manualControl(imap);
+    cout << "\nLogging out..." << endl;
+    imap.logout();
+    // print result info (message count)
 
-    imap.disconnect();
-
+    cout << "\nTHE END" << endl;
     return 0;
 }

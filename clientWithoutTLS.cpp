@@ -17,9 +17,16 @@
 
 using namespace std;
 
+// back up func // delete it
+void print_for_personal_use(string response) {
+    response = regex_replace(response, regex("\r"), "");
+    cout << response;
+}
+
 // inspired by:
 // https://stackoverflow.com/questions/216823/how-to-trim-a-stdstring
 // https://stackoverflow.com/questions/44973435/stdptr-fun-replacement-for-c17/44973498#44973498
+// https://cplusplus.com/reference/cctype/isspace/
 inline void ltrim(string &str) {
     str.erase(str.begin(), find_if(str.begin(), str.end(), [](unsigned char ch) {
         return !isspace(ch);
@@ -61,8 +68,7 @@ void ClientWithoutTLS::connect(const std::string &server, int port) {
     }
 
     string response = this->receiveFromServer();
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
+    print_for_personal_use(response);
     // if(message.find("+OK ") != -1)
     if (response.find("OK") == string::npos) {
         cerr << "Connection failed(response)";
@@ -80,7 +86,7 @@ void ClientWithoutTLS::disconnect() {
 void ClientWithoutTLS::send(const string &message) {
     cout << ">> ";
     char a;
-    for (int i = 0; i < message.size(); i++) {
+    for (long unsigned int i = 0; i < message.size(); i++) {
         a = message[i];
         if (a == '\r')
             continue;
@@ -104,7 +110,6 @@ string ClientWithoutTLS::receiveFromServer() {
     }
 
     string response = buffer;
-    // string response = regex_replace(buffer, regex("\r"), "");
     return response;
 }
 
@@ -115,8 +120,7 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
     send(message);
 
     string response = this->receiveFromServer();
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
+    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
     // if (response.find("Logged in") == string::npos) {
@@ -130,8 +134,7 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
     send(message);
 
     string response = this->receiveFromServer();
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
+    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
 }
@@ -144,8 +147,7 @@ void ClientWithoutTLS::getMessages(const string &output_dir) {
     send(message);
 
     string response = this->receiveFromServer();
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
+    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
 
@@ -223,6 +225,18 @@ string ClientWithoutTLS::formatMessageUID() {
     ostringstream oss;
     oss << "A" << std::setw(3) << setfill('0') << this->message_count++;
     return oss.str();
+}
+
+void ClientWithoutTLS::logout() {
+    string message = formatMessageUID();
+    message.append(" LOGOUT ").append("\r\n");
+
+    send(message);
+    string response = this->receiveFromServer();
+    // TODO check OK response
+    print_for_personal_use(response);
+
+    disconnect();
 }
 
 

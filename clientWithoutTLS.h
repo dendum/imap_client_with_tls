@@ -36,6 +36,8 @@ public:
 
     std::string formatMessageUID();
 
+    void logout();
+
     ~ClientWithoutTLS() override;
 
 private:
