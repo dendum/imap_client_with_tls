@@ -17,6 +17,21 @@
 
 using namespace std;
 
+// inspired by:
+// https://stackoverflow.com/questions/216823/how-to-trim-a-stdstring
+// https://stackoverflow.com/questions/44973435/stdptr-fun-replacement-for-c17/44973498#44973498
+inline void ltrim(string &str) {
+    str.erase(str.begin(), find_if(str.begin(), str.end(), [](unsigned char ch) {
+        return !isspace(ch);
+    }));
+}
+
+inline void rtrim(string &str) {
+    str.erase(find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
+        return !isspace(ch);
+    }).base(), str.end());
+}
+
 void ClientWithoutTLS::connect(const std::string &server, int port) {
     hostent *host;
     sockaddr_in server_addr;
@@ -165,25 +180,28 @@ void ClientWithoutTLS::loadMessage(int uid, const string &output_dir) {
     string result, header, body;
 
     // Now whole msg => TODO only header
-    string message_1 = formatMessageUID();
-    message_1.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT Message-ID)]").append("\r\n");
-    send(message_1);
-    header = this->receiveFromServer();
-    // TODO check OK response
-    parseMessage(header);
-
-    string message_2 = formatMessageUID();
-    message_2.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[1]").append("\r\n");
-    send(message_2);
-    body = this->receiveFromServer();
-    // TODO check OK response
-    parseMessage(body);
-
-    // response = regex_replace(response, regex("\r"), "");
-    // cout << response;
+    // bool only_header = false;
+    header = processMessage(uid, true);
+    body = processMessage(uid, false);
 
     ofstream file(output_dir + "/msg" + to_string(uid) + ".txt");
-    file << header << body;
+    file << header << "\n\n" << body << '\n';
+}
+
+string ClientWithoutTLS::processMessage(int uid, bool message_part) {
+    string message = formatMessageUID();
+    if (message_part) {
+        message.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT Message-ID)]").append("\r\n");
+    } else {
+        message.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[1]").append("\r\n");
+    }
+    send(message);
+    string response = this->receiveFromServer();
+    // TODO check OK response
+    parseMessage(response);
+    ltrim(response);
+    rtrim(response);
+    return response;
 }
 
 void ClientWithoutTLS::parseMessage(std::string &message) {

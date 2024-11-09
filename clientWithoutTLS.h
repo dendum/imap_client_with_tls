@@ -30,6 +30,8 @@ public:
 
     void loadMessage(int uid, const std::string &output_dir);
 
+    std::string processMessage(int uid, bool message_part);
+
     void parseMessage(std::string &header);
 
     std::string formatMessageUID();
