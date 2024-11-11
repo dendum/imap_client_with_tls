@@ -68,7 +68,6 @@ void ClientWithoutTLS::connect(const std::string &server, int port) {
     }
 
     string response = this->receiveFromServer();
-    print_for_personal_use(response);
     // if(message.find("+OK ") != -1)
     if (response.find("OK") == string::npos) {
         cerr << "Connection failed(response)";
@@ -120,7 +119,6 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
     send(message);
 
     string response = this->receiveFromServer();
-    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
     // if (response.find("Logged in") == string::npos) {
@@ -134,12 +132,12 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
     send(message);
 
     string response = this->receiveFromServer();
-    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
 }
 
-void ClientWithoutTLS::getMessages(const string &output_dir) {
+void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only) {
+    this->headers_only = headers_only;
     // get uid info
     string message = formatMessageUID();
     message.append(" UID SEARCH ALL").append("\r\n");
@@ -147,7 +145,6 @@ void ClientWithoutTLS::getMessages(const string &output_dir) {
     send(message);
 
     string response = this->receiveFromServer();
-    print_for_personal_use(response);
     // TODO check OK response
     // if(message.find("OK") != -1)
 
@@ -181,13 +178,17 @@ void ClientWithoutTLS::loadMessage(int uid, const string &output_dir) {
     cout << endl;
     string result, header, body;
 
-    // Now whole msg => TODO only header
-    // bool only_header = false;
     header = processMessage(uid, true);
-    body = processMessage(uid, false);
+    if (!this->headers_only) {
+        body = processMessage(uid, false);
+    }
 
     ofstream file(output_dir + "/msg" + to_string(uid) + ".txt");
-    file << header << "\n\n" << body << '\n';
+    if (this->headers_only) {
+        file << header << '\n';
+    } else {
+        file << header << "\n\n" << body << '\n';
+    }
 }
 
 string ClientWithoutTLS::processMessage(int uid, bool message_part) {
@@ -234,7 +235,6 @@ void ClientWithoutTLS::logout() {
     send(message);
     string response = this->receiveFromServer();
     // TODO check OK response
-    print_for_personal_use(response);
 
     disconnect();
 }

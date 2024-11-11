@@ -24,7 +24,7 @@ public:
 
     void selectMailbox(const std::string &mailbox);
 
-    void getMessages(const std::string &output_dir);
+    void getMessages(const std::string &output_dir, bool headers_only);
 
     void parseUIDStringResponse(std::string &uidString);
 
@@ -41,6 +41,7 @@ public:
     ~ClientWithoutTLS() override;
 
 private:
+    bool headers_only = false;
     int message_count = 1;
     std::vector<int> UIDs = {};
 };
