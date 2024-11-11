@@ -24,7 +24,7 @@ public:
 
     void selectMailbox(const std::string &mailbox);
 
-    void getMessages(const std::string &output_dir, bool headers_only);
+    void getMessages(const std::string &output_dir, bool headers_only, bool only_new);
 
     void parseUIDStringResponse(std::string &uidString);
 
@@ -42,6 +42,7 @@ public:
 
 private:
     bool headers_only = false;
+    bool only_new = false;
     int message_count = 1;
     std::vector<int> UIDs = {};
 };

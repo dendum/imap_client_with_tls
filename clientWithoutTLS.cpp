@@ -136,12 +136,18 @@ void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
     // if(message.find("OK") != -1)
 }
 
-void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only) {
+void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only, bool only_new) {
     this->headers_only = headers_only;
+    this->only_new = only_new;
     // get uid info
     string message = formatMessageUID();
-    message.append(" UID SEARCH ALL").append("\r\n");
-    // TODO flags i guess?
+    message.append(" UID SEARCH ");
+    if (this->only_new) {
+        message.append("UNSEEN");
+    } else {
+        message.append("ALL");
+    }
+    message.append("\r\n");
     send(message);
 
     string response = this->receiveFromServer();
@@ -150,11 +156,13 @@ void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only) 
 
     // parse uids
     parseUIDStringResponse(response);
-    // cout << "Our UIDS: "; for (size_t it = 0; it < UIDs.size(); it++) {
-    // cout << UIDs.at(it) << " ";
-    // } cout << endl;
+    // cout << "Our UIDS: ";
+    // for (size_t it = 0; it < UIDs.size(); it++) {
+        // cout << UIDs.at(it) << " ";
+    // }
+    // cout << endl;
 
-    for (int uid: UIDs) {
+    for (const int uid: UIDs) {
         loadMessage(uid, output_dir);
     }
 }
@@ -194,7 +202,8 @@ void ClientWithoutTLS::loadMessage(int uid, const string &output_dir) {
 string ClientWithoutTLS::processMessage(int uid, bool message_part) {
     string message = formatMessageUID();
     if (message_part) {
-        message.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT Message-ID)]").append("\r\n");
+        message.append(" UID FETCH ").append(to_string(uid)).append(
+            " BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT Message-ID)]").append("\r\n");
     } else {
         message.append(" UID FETCH ").append(to_string(uid)).append(" BODY.PEEK[1]").append("\r\n");
     }
