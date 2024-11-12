@@ -23,6 +23,10 @@ void print_for_personal_use(string response) {
     cout << response;
 }
 
+inline bool isOkResponse(const string &response) {
+    return response.find("OK") != -1;
+}
+
 // inspired by:
 // https://stackoverflow.com/questions/216823/how-to-trim-a-stdstring
 // https://stackoverflow.com/questions/44973435/stdptr-fun-replacement-for-c17/44973498#44973498
@@ -68,9 +72,10 @@ void ClientWithoutTLS::connect(const std::string &server, int port) {
     }
 
     string response = this->receiveFromServer();
-    // if(message.find("+OK ") != -1)
-    if (response.find("OK") == string::npos) {
-        cerr << "Connection failed(response)";
+    if (!isOkResponse(response)) {
+        cerr << "Connection failed(response)" << endl;
+        // TODO: errors catcher
+        exit(0);
     }
 }
 
@@ -119,21 +124,25 @@ void ClientWithoutTLS::login(const string &username, const string &password) {
     send(message);
 
     string response = this->receiveFromServer();
-    // TODO check OK response
-    // if(message.find("OK") != -1)
-    // if (response.find("Logged in") == string::npos) {
-    // cerr << "Logging failed." << endl;
-    // }
+    if (!isOkResponse(response)) {
+        cerr << "Error: login" << endl;
+        // TODO: errors
+        exit(0);
+    }
 }
 
 void ClientWithoutTLS::selectMailbox(const std::string &mailbox) {
+    this->mailbox = mailbox;
     string message = formatMessageUID();
     message.append(" SELECT ").append(mailbox).append(" ").append("\r\n");
     send(message);
 
     string response = this->receiveFromServer();
-    // TODO check OK response
-    // if(message.find("OK") != -1)
+    if (!isOkResponse(response)) {
+        cerr << "Error: selectMailbox" << endl;
+        // TODO: errors
+        exit(0);
+    }
 }
 
 void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only, bool only_new) {
@@ -151,19 +160,30 @@ void ClientWithoutTLS::getMessages(const string &output_dir, bool headers_only, 
     send(message);
 
     string response = this->receiveFromServer();
-    // TODO check OK response
-    // if(message.find("OK") != -1)
+    if (!isOkResponse(response)) {
+        cerr << "Error: getMessages" << endl;
+        // TODO: errors
+        exit(0);
+    }
 
     // parse uids
     parseUIDStringResponse(response);
     // cout << "Our UIDS: ";
     // for (size_t it = 0; it < UIDs.size(); it++) {
-        // cout << UIDs.at(it) << " ";
+    // cout << UIDs.at(it) << " ";
     // }
     // cout << endl;
 
     for (const int uid: UIDs) {
         loadMessage(uid, output_dir);
+    }
+
+    if (only_new) {
+        cout << "Downloaded " << UIDs.size() <<
+                " new messages from the " << this->mailbox << "mailbox." << endl;
+    } else {
+        cout << "Downloaded " << UIDs.size() <<
+                " messages from the " << this->mailbox << " mailbox." << endl;
     }
 }
 
@@ -209,7 +229,11 @@ string ClientWithoutTLS::processMessage(int uid, bool message_part) {
     }
     send(message);
     string response = this->receiveFromServer();
-    // TODO check OK response
+    if (!isOkResponse(response)) {
+        cerr << "Error: processMessage" << endl;
+        // TODO: errors
+        exit(0);
+    }
     parseMessage(response);
     ltrim(response);
     rtrim(response);
@@ -243,7 +267,11 @@ void ClientWithoutTLS::logout() {
 
     send(message);
     string response = this->receiveFromServer();
-    // TODO check OK response
+    if (!isOkResponse(response)) {
+        cerr << "Error: logout" << endl;
+        // TODO: errors
+        exit(0);
+    }
 
     disconnect();
 }

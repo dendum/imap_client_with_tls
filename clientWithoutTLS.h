@@ -44,6 +44,7 @@ private:
     bool headers_only = false;
     bool only_new = false;
     int message_count = 1;
+    std::string mailbox;
     std::vector<int> UIDs = {};
 };
 
