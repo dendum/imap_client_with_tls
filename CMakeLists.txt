@@ -8,6 +8,13 @@ add_executable(imapcl main.cpp
         parser.h
         error.cpp
         error.h
+        client.cpp
         client.h
         clientWithoutTLS.cpp
-        clientWithoutTLS.h)
+        clientWithoutTLS.h
+        clientWithTLS.cpp
+        clientWithTLS.h
+)
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries(imapcl OpenSSL::SSL OpenSSL::Crypto)

@@ -10,6 +10,7 @@
 #include <memory>
 #include "client.h"
 #include "clientWithoutTLS.h"
+#include "clientWithTLS.h"
 
 #include "error.h"
 
@@ -23,7 +24,7 @@ void manualControl(ClientWithoutTLS &imap) {
 
         string formattedData = input + "\r\n";
         imap.send(formattedData);
-        
+
         string response = imap.receiveFromServer();
         response = regex_replace(response, regex("\r"), "");
         cout << response;
@@ -39,24 +40,40 @@ int main(int argc, char **argv) {
     parser.loadAuthData();
     // parser.to_String();
 
-    /*** IMAP without TLS ***/
     // TODO: errors checker/catcher
 
     // unique_ptr<Client> imap = make_unique<ClientWithoutTLS>();
-    ClientWithoutTLS imap;
+    if (parser.useTLS()) {
+        /*** IMAP with TLS ***/
+        clientWithTLS imaps;
 
-    cout << "Connecting to server..." << endl;
-    imap.connect(parser.getServer(), parser.getPort());
-    cout << "\nLogging..." << endl;
-    imap.login(parser.getUsername(), parser.getPassword());
-    cout << "\nSetting up..." << endl;
-    imap.selectMailbox(parser.getMailbox());
-    cout << "\nGetting messages..." << endl;
-    imap.getMessages(parser.getOutputDir(), parser.onlyHeaders(), parser.onlyNew());
-    cout << "\nLogging out..." << endl;
-    imap.logout();
-    // print result info (message count)
+        cout << "SECURED" << endl;
+        cout << "Connecting to server..." << endl;
+        imaps.connect(parser.getServer(), parser.getPort(), parser.getCertfile(), parser.getCertdir());
+        cout << "\nLogging..." << endl;
+        imaps.login(parser.getUsername(), parser.getPassword());
+        cout << "\nSetting up..." << endl;
+        imaps.selectMailbox(parser.getMailbox());
+        cout << "\nGetting messages..." << endl;
+        imaps.getMessages(parser.getOutputDir(), parser.onlyHeaders(), parser.onlyNew());
+        cout << "\nLogging out..." << endl;
+        imaps.logout();
 
-    cout << "\nTHE END" << endl;
+    } else {
+        /*** IMAP without TLS ***/
+        ClientWithoutTLS imap;
+
+        cout << "Connecting to server..." << endl;
+        imap.connect(parser.getServer(), parser.getPort());
+        cout << "\nLogging..." << endl;
+        imap.login(parser.getUsername(), parser.getPassword());
+        cout << "\nSetting up..." << endl;
+        imap.selectMailbox(parser.getMailbox());
+        cout << "\nGetting messages..." << endl;
+        imap.getMessages(parser.getOutputDir(), parser.onlyHeaders(), parser.onlyNew());
+        cout << "\nLogging out..." << endl;
+        imap.logout();
+    }
+
     return 0;
 }

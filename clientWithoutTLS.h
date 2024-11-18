@@ -12,7 +12,7 @@
 
 class ClientWithoutTLS : public Client {
 public:
-    void connect(const std::string &server, int port) override;
+    void connect(const std::string &server, int port);
 
     void disconnect() override;
 
@@ -20,32 +20,10 @@ public:
 
     std::string receiveFromServer() override;
 
-    void login(const std::string &login, const std::string &password);
-
-    void selectMailbox(const std::string &mailbox);
-
-    void getMessages(const std::string &output_dir, bool headers_only, bool only_new);
-
-    void parseUIDStringResponse(std::string &uidString);
-
-    void loadMessage(int uid, const std::string &output_dir);
-
-    std::string processMessage(int uid, bool message_part);
-
-    void parseMessage(std::string &header);
-
-    std::string formatMessageUID();
-
-    void logout();
-
     ~ClientWithoutTLS() override;
 
 private:
-    bool headers_only = false;
-    bool only_new = false;
-    int message_count = 1;
-    std::string mailbox;
-    std::vector<int> UIDs = {};
+    int sock = -1;
 };
 
 
