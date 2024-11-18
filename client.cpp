@@ -21,7 +21,6 @@ using namespace std;
 
 void Client::login(const string &username, const string &password) {
     string message = formatMessageUID();
-    cout << "user:" << username << " , pass:" << password << endl;
     message.append(" LOGIN ").append(username).append(" ").append(password).append("\r\n");
 
     send(message);
