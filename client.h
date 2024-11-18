@@ -11,6 +11,9 @@
 #include <string>
 #include <vector>
 
+/**
+ * Base class for the IMAP client interface, which defines common operations for all IMAP clients.
+ */
 class Client {
 public:
     virtual void cleanup() = 0;

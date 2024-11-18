@@ -14,10 +14,12 @@
 using namespace std;
 
 int main(int argc, char **argv) {
+    // Create a Parser object to handle command-line arguments
     Parser parser(argc, argv);
     parser.parse();
     parser.loadAuthData();
 
+    // Check if TLS (encrypted connection) is enabled
     if (parser.useTLS()) {
         /*** IMAP with TLS ***/
         ClientWithTLS imaps;

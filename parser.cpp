@@ -34,6 +34,9 @@ Parser::Parser(int argc, char **argv) {
     this->argv = argv;
 }
 
+/**
+ * Parses command-line arguments to configure the IMAP client.
+ */
 void Parser::parse() {
     if (argc < 6) {
         std::cerr << "Wrong set of arguments." << std::endl;
@@ -113,6 +116,9 @@ void Parser::parse() {
     }
 }
 
+/**
+ * Loads the authentication data (username and password) from a specified file.
+ */
 void Parser::loadAuthData() {
     ifstream in(auth_file);
 

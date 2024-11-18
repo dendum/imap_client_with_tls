@@ -14,6 +14,17 @@
 
 using namespace std;
 
+/**
+ * Establishes a TLS connection to the server using TLS encryption.
+ *
+ * Function sets up an SSL context, loads the necessary certificate files or directories,
+ * creates a BIO object for secure communication, and attempts to connect to the server.
+ *
+ * @param server The server address to connect to.
+ * @param port The port number to use for the connection.
+ * @param certfile Path to the SSL certificate file for server verification.
+ * @param certdir Directory containing SSL certificate files for server verification.
+ */
 void ClientWithTLS::connect(const std::string &server, int port,
                             const std::string &certfile, const std::string &certdir) {
     this->ctx = SSL_CTX_new(TLS_method());
@@ -22,21 +33,15 @@ void ClientWithTLS::connect(const std::string &server, int port,
         new error("SSL context creation failed.");
     }
 
-    // TODO: CHANGE TO DIR ON MERLIN!!!
     if (!certfile.empty()) {
         if (!SSL_CTX_load_verify_locations(ctx, certfile.c_str(), nullptr)) {
             cleanup();
             new error("Certificate file loading failed.");
         }
-    } else if (certdir.empty()) {
+    } else if (!certdir.empty()) {
         if (!SSL_CTX_load_verify_locations(ctx, nullptr, certdir.c_str())) {
             cleanup();
             new error("Certificate directory loading failed.");
-        }
-    } else {
-        if (!SSL_CTX_set_default_verify_paths(ctx)) {
-            cleanup();
-            new error("Certificate loading failed.");
         }
     }
 

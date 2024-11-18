@@ -18,6 +18,16 @@
 
 using namespace std;
 
+/**
+ * Establishes a connection to the server without using TLS encryption.
+ *
+ * Function creates a socket, resolves the server address, and attempts
+ * to connect to the given server and port. If any step fails, it cleans up
+ * and call an error message.
+ *
+ * @param server The server address to connect to.
+ * @param port The port number to use for the connection.
+ */
 void ClientWithoutTLS::connect(const string &server, int port) {
     hostent *host;
     sockaddr_in server_addr;
