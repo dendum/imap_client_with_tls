@@ -9,17 +9,7 @@
 
 using namespace std;
 
-error::error(const IMAPCLError errorCode) {
-    string errorMessage;
-    switch (errorCode) {
-        case OK:
-            errorMessage = "Everything is fine";
-            break;
-        default:
-            errorMessage = "Unknown error";
-    }
-
-    fprintf(stderr, " ERROR: %s\n", errorMessage.c_str());
-    cout << "======= EXIT =======" << endl;
-    exit(errorCode);
+error::error(const std::string &message) {
+    cerr << message << endl;
+    exit(1);
 }

@@ -11,6 +11,8 @@
 #include <fstream>
 #include <regex>
 
+#include "error.h"
+
 Parser::Parser(int argc, char **argv) {
     server = "";
     port = 143;
@@ -31,17 +33,24 @@ Parser::Parser(int argc, char **argv) {
 
 void Parser::parse() {
     // Použití: imapcl server [-p port] [-T [-c certfile] [-C certaddr]] [-n] [-h] -a auth_file [-b MAILBOX] -o out_dir
-    int opt;
-    server = argv[1];
+    if (argc < 6) showHelp();
 
-    while ((opt = getopt(argc, argv, "p:Ta:c:C:nhb:o:")) != -1) {
+    server = argv[1];
+    int opt;
+
+    while ((opt = getopt(argc, argv, "p:Ta:c:C:nhb:o:H")) != -1) {
         switch (opt) {
             case 'p': {
                 port = atoi(optarg);
+                if (port <= 0) {
+                    std::cerr << "Invalid port number." << std::endl;
+                    showHelp();
+                }
                 break;
             }
             case 'T': {
                 use_tls = true;
+                port = 993;
                 break;
             }
             case 'a': {
@@ -72,8 +81,25 @@ void Parser::parse() {
                 output_dir = optarg;
                 break;
             }
-            default: ;
+            case 'H': {
+                showHelp();
+            }
+            default: {
+
+            }
         }
+    }
+
+    if (auth_file.empty()) {
+        cerr << "Authentication file (-a) is required." << endl;
+        showHelp();
+        exit(1);
+    }
+
+    if (output_dir.empty()) {
+        cerr << "Output directory (-o) is required." << endl;
+        showHelp();
+        exit(1);
     }
 }
 
@@ -105,6 +131,23 @@ void Parser::loadAuthData() {
             exit(0);
         }
     }
+}
+
+void Parser::showHelp() {
+    std::cout << "Usage: ./imapcl server [-p port] [-T [-c certfile] [-C certaddr]] [-n] [-h] -a auth_file [-b MAILBOX] -o out_dir\n"
+              << "Options:\n"
+              << "  server            The IP address or domain name of the server (required).\n"
+              << "  -p port           Specify the server port. Default: 143 (IMAP), 993 (IMAPS if -T is used).\n"
+              << "  -T                Enable encryption (IMAPS). Default: unencrypted IMAP.\n"
+              << "  -c certfile       File with SSL/TLS certificates for server verification.\n"
+              << "  -C certaddr       Directory with SSL/TLS certificates. Default: /etc/ssl/certs.\n"
+              << "  -n                Only process new messages.\n"
+              << "  -h                Download only message headers.\n"
+              << "  -a auth_file      Path to the authentication file (required).\n"
+              << "  -b MAILBOX        Specify the mailbox to use. Default: INBOX.\n"
+              << "  -o out_dir        Specify the output directory for downloaded messages (required).\n"
+              << std::endl;
+    exit(0);
 }
 
 string Parser::getServer() {

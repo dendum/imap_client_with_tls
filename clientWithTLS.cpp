@@ -6,23 +6,14 @@
 
 #include <fstream>
 #include <iostream>
-#include <iomanip>
-#include <regex>
-#include <sstream>
+
+#include "error.h"
 
 using namespace std;
 
-// back up func // delete it
-void print_for_secure_personal_use(string response) {
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
-}
-
-void clientWithTLS::connect(const std::string &server, int port,
+void ClientWithTLS::connect(const std::string &server, int port,
                             const std::string &certfile, const std::string &certdir) {
     this->ctx = SSL_CTX_new(TLS_method());
-    // ctx error ???!
-
     if (!ctx) {
         cerr << "error ctx" << endl;
         // TODO: errors catcher
@@ -71,14 +62,7 @@ void clientWithTLS::connect(const std::string &server, int port,
     }
 }
 
-void clientWithTLS::disconnect() {
-    // if (this->myBIO) BIO_free_all(this->myBIO);
-    // if (this->mySSL) SSL_shutdown(this->mySSL);
-    // if (this->ctx) SSL_CTX_free(this->ctx);
-    // BIO_free_all(this->myBIO);
-    // SSL_shutdown(this->mySSL);
-    // SSL_free(this->mySSL);
-    // SSL_CTX_free(this->ctx);
+void ClientWithTLS::disconnect() {
     if (this->myBIO) {
         BIO_free_all(this->myBIO);
         this->myBIO = nullptr;
@@ -87,19 +71,9 @@ void clientWithTLS::disconnect() {
         SSL_CTX_free(this->ctx);
         this->ctx = nullptr;
     }
-    cout << "disconnected" << endl;
 }
 
-void clientWithTLS::send(const std::string &message) {
-    // cout << ">> ";
-    // char a;
-    // for (long unsigned int i = 0; i < message.size(); i++) {
-    // a = message[i];
-    // if (a == '\r')
-    // continue;
-    // cout << message[i];
-    // }
-    // SSL_write(this->mySSL, message.c_str(), message.length());
+void ClientWithTLS::send(const std::string &message) {
     if (BIO_write(this->myBIO, message.c_str(), message.size()) < 0) {
         cerr << "Send failed." << endl;
         // TODO: errors catcher
@@ -107,10 +81,10 @@ void clientWithTLS::send(const std::string &message) {
     }
 }
 
-std::string clientWithTLS::receiveFromServer() {
-    char buffer[16384] = {};
+std::string ClientWithTLS::receiveFromServer() {
+    char buffer[8192] = {};
 
-    if (BIO_read(this->myBIO, buffer, 16384) < 0) {
+    if (BIO_read(this->myBIO, buffer, 8192) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
@@ -121,6 +95,6 @@ std::string clientWithTLS::receiveFromServer() {
     return response;
 }
 
-clientWithTLS::~clientWithTLS() {
-    clientWithTLS::disconnect();
+ClientWithTLS::~ClientWithTLS() {
+    ClientWithTLS::disconnect();
 }

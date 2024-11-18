@@ -13,7 +13,7 @@ public:
     Parser(int argc, char **argv);
     void parse();
     void loadAuthData();
-
+    void showHelp();
     string getServer();
     int getPort();
     bool useTLS();

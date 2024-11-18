@@ -6,7 +6,6 @@
 #define CLIENTWITHOUTTLS_H
 
 #include <string>
-#include <vector>
 
 #include "client.h"
 

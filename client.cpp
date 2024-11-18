@@ -9,9 +9,10 @@
 #include <sstream>
 #include <regex>
 #include <fstream>
-
 #include <cstring>
 #include <filesystem>
+
+#include "error.h"
 
 using namespace std;
 
@@ -64,21 +65,14 @@ void Client::getMessages(const string &output_dir, bool headers_only, bool only_
         exit(0);
     }
 
-    // parse uids
     parseUIDStringResponse(response);
-    // cout << "Our UIDS: ";
-    // for (size_t it = 0; it < UIDs.size(); it++) {
-    // cout << UIDs.at(it) << " ";
-    // }
-    // cout << endl;
-
     for (const int uid: UIDs) {
         loadMessage(uid, output_dir);
     }
 
     if (only_new) {
         cout << "Downloaded " << UIDs.size() <<
-                " new messages from the " << this->mailbox << "mailbox." << endl;
+                " new messages from the " << this->mailbox << " mailbox." << endl;
     } else {
         cout << "Downloaded " << UIDs.size() <<
                 " messages from the " << this->mailbox << " mailbox." << endl;
@@ -152,7 +146,6 @@ void Client::parseMessage(string &message) {
 }
 
 string Client::formatMessageUID() {
-    // string maybe = std::format("A{:03}", message_count); !! c++20 !! somehow wsl problems??
     ostringstream oss;
     oss << "A" << setw(3) << setfill('0') << this->message_count++;
     return oss.str();

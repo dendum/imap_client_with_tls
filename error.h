@@ -4,15 +4,11 @@
 
 #ifndef ERROR_H
 #define ERROR_H
-
-enum IMAPCLError {
-    OK = 0,
-    E_ARGUMENTS = 1,
-};
+#include <string>
 
 class error {
 public:
-    error(IMAPCLError);
+    explicit error(const std::string &message);
 };
 
 

@@ -10,8 +10,6 @@
 
 class Client {
 public:
-    // void connect(const std::string &server, int port);
-
     virtual void disconnect() = 0;
 
     virtual void send(const std::string &message) = 0;

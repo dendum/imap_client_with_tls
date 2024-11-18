@@ -11,17 +11,10 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <regex>
-#include <iomanip>
-#include <sstream>
+
+#include "error.h"
 
 using namespace std;
-
-// back up func // delete it
-void print_for_personal_use(string response) {
-    response = regex_replace(response, regex("\r"), "");
-    cout << response;
-}
 
 void ClientWithoutTLS::connect(const string &server, int port) {
     hostent *host;
@@ -63,19 +56,10 @@ void ClientWithoutTLS::disconnect() {
     if (sock != -1) {
         ::close(sock);
         sock = -1;
-        cout << "disconnected" << endl;
     }
 }
 
 void ClientWithoutTLS::send(const string &message) {
-    // cout << ">> ";
-    // char a;
-    // for (long unsigned int i = 0; i < message.size(); i++) {
-    // a = message[i];
-    // if (a == '\r')
-    // continue;
-    // cout << message[i];
-    // }
     if (::send(sock, message.c_str(), message.size(), 0) < 0) {
         cerr << "Send failed." << endl;
         // TODO: errors catcher
@@ -84,9 +68,9 @@ void ClientWithoutTLS::send(const string &message) {
 }
 
 string ClientWithoutTLS::receiveFromServer() {
-    char buffer[16384] = {};
+    char buffer[8192] = {};
 
-    if (::recv(sock, buffer, 16384, 0) < 0) {
+    if (::recv(sock, buffer, 8192, 0) < 0) {
         cerr << "Receive failed.return."
                 "No response from server or connection closed." << endl;
         // TODO: errors catcher
