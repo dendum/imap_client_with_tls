@@ -1,6 +1,9 @@
-//
-// Created by Den on 15.11.2024.
-//
+/**
+* VUT FIT ISA 2024 project - IMAP client with TLS.
+ *
+ * @file Client with encryption implementation.
+ * @author Denys Dumych <xdumyc00>
+ */
 
 #include "clientWithTLS.h"
 

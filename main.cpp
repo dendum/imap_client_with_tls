@@ -1,11 +1,15 @@
-#include <iostream>
+/**
+* VUT FIT ISA 2024 project - IMAP client with TLS.
+ *
+ * @file Main file.
+ * @author Denys Dumych <xdumyc00>
+ */
 
+#include <iostream>
 #include "parser.h"
 #include "client.h"
 #include "clientWithoutTLS.h"
 #include "clientWithTLS.h"
-
-#include "error.h"
 
 using namespace std;
 

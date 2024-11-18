@@ -1,6 +1,9 @@
-//
-// Created by Den on 15.11.2024.
-//
+/**
+* VUT FIT ISA 2024 project - IMAP client with TLS.
+ *
+ * @file Base client implementation.
+ * @author Denys Dumych <xdumyc00>
+ */
 
 #include "client.h"
 
@@ -149,7 +152,6 @@ inline bool Client::isOkResponse(const string &response) {
 }
 
 inline void Client::ltrim(string &str) {
-    new error("TEST");
     str.erase(str.begin(), find_if(str.begin(), str.end(), [](unsigned char ch) {
         return !isspace(ch);
     }));
