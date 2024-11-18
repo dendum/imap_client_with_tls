@@ -13,7 +13,7 @@ class ClientWithoutTLS : public Client {
 public:
     void connect(const std::string &server, int port);
 
-    void disconnect() override;
+    void cleanup() override;
 
     void send(const std::string &message) override;
 

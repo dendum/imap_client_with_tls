@@ -21,14 +21,10 @@ public:
     string getCertdir();
     bool onlyNew();
     bool onlyHeaders();
-    string getAuthFile();
     string getMailbox();
     string getOutputDir();
     std::string getUsername();
     string getPassword();
-
-    // Help func
-    void to_String();
 
 private:
     unsigned int argc;

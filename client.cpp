@@ -18,15 +18,14 @@ using namespace std;
 
 void Client::login(const string &username, const string &password) {
     string message = formatMessageUID();
+    cout << "user:" << username << " , pass:" << password << endl;
     message.append(" LOGIN ").append(username).append(" ").append(password).append("\r\n");
 
     send(message);
 
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Error: login" << endl;
-        // TODO: errors
-        exit(0);
+        new error("Login failed");
     }
 }
 
@@ -38,9 +37,7 @@ void Client::selectMailbox(const string &mailbox) {
 
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Error: selectMailbox" << endl;
-        // TODO: errors
-        exit(0);
+        new error("Select mailbox failed");
     }
 }
 
@@ -60,9 +57,7 @@ void Client::getMessages(const string &output_dir, bool headers_only, bool only_
 
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Error: getMessages" << endl;
-        // TODO: errors
-        exit(0);
+        new error("Mailbox UID SEARCH failed");
     }
 
     parseUIDStringResponse(response);
@@ -121,9 +116,7 @@ string Client::processMessage(int uid, bool message_part) {
     send(message);
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Error: processMessage" << endl;
-        // TODO: errors
-        exit(0);
+        new error("Message fetch failed");
     }
     parseMessage(response);
     ltrim(response);
@@ -156,6 +149,7 @@ inline bool Client::isOkResponse(const string &response) {
 }
 
 inline void Client::ltrim(string &str) {
+    new error("TEST");
     str.erase(str.begin(), find_if(str.begin(), str.end(), [](unsigned char ch) {
         return !isspace(ch);
     }));
@@ -174,10 +168,8 @@ void Client::logout() {
     send(message);
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Error: logout" << endl;
-        // TODO: errors
-        exit(0);
+        new error("Logging out failed");
     }
 
-    disconnect();
+    cleanup();
 }

@@ -10,7 +10,7 @@
 
 class Client {
 public:
-    virtual void disconnect() = 0;
+    virtual void cleanup() = 0;
 
     virtual void send(const std::string &message) = 0;
 

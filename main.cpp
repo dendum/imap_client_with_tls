@@ -14,9 +14,6 @@ int main(int argc, char **argv) {
     parser.parse();
     parser.loadAuthData();
 
-    // TODO: errors checker/catcher
-
-    // unique_ptr<Client> imap = make_unique<ClientWithoutTLS>();
     if (parser.useTLS()) {
         /*** IMAP with TLS ***/
         ClientWithTLS imaps;

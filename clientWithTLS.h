@@ -16,7 +16,7 @@ class ClientWithTLS : public Client {
 public:
     void connect(const std::string &server, int port, const std::string &certfile, const std::string &certdir);
 
-    void disconnect() override;
+    void cleanup() override;
 
     void send(const std::string &message) override;
 

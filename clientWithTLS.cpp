@@ -15,28 +15,25 @@ void ClientWithTLS::connect(const std::string &server, int port,
                             const std::string &certfile, const std::string &certdir) {
     this->ctx = SSL_CTX_new(TLS_method());
     if (!ctx) {
-        cerr << "error ctx" << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("SSL context creation failed.");
     }
 
     // TODO: CHANGE TO DIR ON MERLIN!!!
     if (!certfile.empty()) {
         if (!SSL_CTX_load_verify_locations(ctx, certfile.c_str(), nullptr)) {
-            cerr << "error cert file" << endl;
-            // TODO: errors catcher
-            exit(0);
+            cleanup();
+            new error("Certificate file loading failed.");
         }
     } else if (certdir.empty()) {
         if (!SSL_CTX_load_verify_locations(ctx, nullptr, certdir.c_str())) {
-            cerr << "error cert dir" << endl;
-            // TODO: errors catcher
-            exit(0);
+            cleanup();
+            new error("Certificate directory loading failed.");
         }
     } else {
         if (!SSL_CTX_set_default_verify_paths(ctx)) {
-            cerr << "ERROR when setting default certification locations" << endl;
-            exit(0);
+            cleanup();
+            new error("Certificate loading failed.");
         }
     }
 
@@ -48,21 +45,18 @@ void ClientWithTLS::connect(const std::string &server, int port,
     BIO_set_conn_hostname(this->myBIO, host.c_str());
 
     if (BIO_do_connect(this->myBIO) <= 0) {
-        cerr << "connection failed" << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("TLS connection failed.");
     }
-
 
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Connection failed(response)" << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("TLS connection failed(response).");
     }
 }
 
-void ClientWithTLS::disconnect() {
+void ClientWithTLS::cleanup() {
     if (this->myBIO) {
         BIO_free_all(this->myBIO);
         this->myBIO = nullptr;
@@ -75,9 +69,8 @@ void ClientWithTLS::disconnect() {
 
 void ClientWithTLS::send(const std::string &message) {
     if (BIO_write(this->myBIO, message.c_str(), message.size()) < 0) {
-        cerr << "Send failed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Send failed.");
     }
 }
 
@@ -85,10 +78,8 @@ std::string ClientWithTLS::receiveFromServer() {
     char buffer[8192] = {};
 
     if (BIO_read(this->myBIO, buffer, 8192) < 0) {
-        cerr << "Receive failed.return."
-                "No response from server or connection closed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Receive failed.");
     }
 
     string response = buffer;
@@ -96,5 +87,5 @@ std::string ClientWithTLS::receiveFromServer() {
 }
 
 ClientWithTLS::~ClientWithTLS() {
-    ClientWithTLS::disconnect();
+    ClientWithTLS::cleanup();
 }

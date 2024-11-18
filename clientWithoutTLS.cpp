@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 
 #include "error.h"
 
@@ -22,15 +21,13 @@ void ClientWithoutTLS::connect(const string &server, int port) {
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-        cerr << "Socket creation failed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Socket creation failed.");
     }
 
-    if ((host = gethostbyname(server.c_str())) == NULL) {
-        cerr << "Host does not exist." << endl;
-        // TODO: errors catcher
-        exit(0);
+    if ((host = gethostbyname(server.c_str())) == nullptr) {
+        cleanup();
+        new error("Host does not exist.");
     }
 
     auto **addresses = (in_addr **) host->h_addr_list;
@@ -39,20 +36,18 @@ void ClientWithoutTLS::connect(const string &server, int port) {
     server_addr.sin_port = htons(port);
 
     if (::connect(sock, (sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
-        cerr << "Connection failed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Connection failed.");
     }
 
     string response = this->receiveFromServer();
     if (!isOkResponse(response)) {
-        cerr << "Connection failed(response)" << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Connection failed(response).");
     }
 }
 
-void ClientWithoutTLS::disconnect() {
+void ClientWithoutTLS::cleanup() {
     if (sock != -1) {
         ::close(sock);
         sock = -1;
@@ -61,9 +56,8 @@ void ClientWithoutTLS::disconnect() {
 
 void ClientWithoutTLS::send(const string &message) {
     if (::send(sock, message.c_str(), message.size(), 0) < 0) {
-        cerr << "Send failed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Send failed.");
     }
 }
 
@@ -71,10 +65,8 @@ string ClientWithoutTLS::receiveFromServer() {
     char buffer[8192] = {};
 
     if (::recv(sock, buffer, 8192, 0) < 0) {
-        cerr << "Receive failed.return."
-                "No response from server or connection closed." << endl;
-        // TODO: errors catcher
-        exit(0);
+        cleanup();
+        new error("Receive failed.");
     }
 
     string response = buffer;
@@ -82,5 +74,5 @@ string ClientWithoutTLS::receiveFromServer() {
 }
 
 ClientWithoutTLS::~ClientWithoutTLS() {
-    ClientWithoutTLS::disconnect();
+    ClientWithoutTLS::cleanup();
 }

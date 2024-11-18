@@ -32,8 +32,11 @@ Parser::Parser(int argc, char **argv) {
 }
 
 void Parser::parse() {
-    // Použití: imapcl server [-p port] [-T [-c certfile] [-C certaddr]] [-n] [-h] -a auth_file [-b MAILBOX] -o out_dir
-    if (argc < 6) showHelp();
+    if (argc < 6) {
+        std::cerr << "Wrong set of arguments." << std::endl;
+        showHelp();
+        exit(1);
+    }
 
     server = argv[1];
     int opt;
@@ -45,6 +48,7 @@ void Parser::parse() {
                 if (port <= 0) {
                     std::cerr << "Invalid port number." << std::endl;
                     showHelp();
+                    exit(1);
                 }
                 break;
             }
@@ -83,9 +87,12 @@ void Parser::parse() {
             }
             case 'H': {
                 showHelp();
+                exit(0);
             }
             default: {
-
+                cerr << "Unknown argument." << endl;
+                showHelp();
+                exit(1);
             }
         }
     }
@@ -116,9 +123,7 @@ void Parser::loadAuthData() {
         getline(iss, value);
 
         if (eq != "=") {
-            cerr << "Invalid format: expected 'key = value' in line: " + line << endl;
-            // TODO: errors catcher
-            exit(0);
+            new error("Invalid auth file format: expected 'key = value' in line: " + line);
         }
 
         if (key == "username") {
@@ -126,28 +131,26 @@ void Parser::loadAuthData() {
         } else if (key == "password") {
             this->password = regex_replace(value, regex("\r"), "");
         } else {
-            cerr << "Invalid format: expected 'username' or 'password'" << endl;
-            // TODO: errors catcher
-            exit(0);
+            new error("Invalid auth file format: expected 'username' or 'password'");
         }
     }
 }
 
 void Parser::showHelp() {
-    std::cout << "Usage: ./imapcl server [-p port] [-T [-c certfile] [-C certaddr]] [-n] [-h] -a auth_file [-b MAILBOX] -o out_dir\n"
-              << "Options:\n"
-              << "  server            The IP address or domain name of the server (required).\n"
-              << "  -p port           Specify the server port. Default: 143 (IMAP), 993 (IMAPS if -T is used).\n"
-              << "  -T                Enable encryption (IMAPS). Default: unencrypted IMAP.\n"
-              << "  -c certfile       File with SSL/TLS certificates for server verification.\n"
-              << "  -C certaddr       Directory with SSL/TLS certificates. Default: /etc/ssl/certs.\n"
-              << "  -n                Only process new messages.\n"
-              << "  -h                Download only message headers.\n"
-              << "  -a auth_file      Path to the authentication file (required).\n"
-              << "  -b MAILBOX        Specify the mailbox to use. Default: INBOX.\n"
-              << "  -o out_dir        Specify the output directory for downloaded messages (required).\n"
-              << std::endl;
-    exit(0);
+    std::cout <<
+            "Usage: ./imapcl server [-p port] [-T [-c certfile] [-C certaddr]] [-n] [-h] -a auth_file [-b MAILBOX] -o out_dir\n"
+            << "Options:\n"
+            << "  server            The IP address or domain name of the server (required).\n"
+            << "  -p port           Specify the server port. Default: 143 (IMAP), 993 (IMAPS if -T is used).\n"
+            << "  -T                Enable encryption (IMAPS). Default: unencrypted IMAP.\n"
+            << "  -c certfile       File with SSL/TLS certificates for server verification.\n"
+            << "  -C certaddr       Directory with SSL/TLS certificates. Default: /etc/ssl/certs.\n"
+            << "  -n                Only process new messages.\n"
+            << "  -h                Download only message headers.\n"
+            << "  -a auth_file      Path to the authentication file (required).\n"
+            << "  -b MAILBOX        Specify the mailbox to use. Default: INBOX.\n"
+            << "  -o out_dir        Specify the output directory for downloaded messages (required).\n"
+            << std::endl;
 }
 
 string Parser::getServer() {
@@ -178,10 +181,6 @@ bool Parser::onlyHeaders() {
     return headers_only;
 }
 
-string Parser::getAuthFile() {
-    return auth_file;
-}
-
 string Parser::getMailbox() {
     return mailbox;
 }
@@ -196,22 +195,4 @@ std::string Parser::getUsername() {
 
 string Parser::getPassword() {
     return password;
-}
-
-void Parser::to_String() {
-    cout << "======= Args Info =======" << endl;
-    printf("Count of arguments: %d\n", argc);
-    printf("server: %s\n", getServer().c_str());
-    printf("Port: %d\n", getPort());
-    printf("Use TLS: %s\n", useTLS() ? "true" : "false");
-    printf("Certfile: %s\n", getCertfile().c_str());
-    printf("Certdir: %s\n", getCertdir().c_str());
-    printf("Only new: %s\n", onlyNew() ? "true" : "false");
-    printf("Only head: %s\n", onlyHeaders() ? "true" : "false");
-    printf("Auth file: %s\n", getAuthFile().c_str());
-    printf("Mailbox: %s\n", getMailbox().c_str());
-    printf("Output dir: %s\n", getOutputDir().c_str());
-    printf("Username: %s\n", username.data());
-    printf("Password: %s\n", password.data());
-    cout << "======= Args Info End =======" << endl;
 }
