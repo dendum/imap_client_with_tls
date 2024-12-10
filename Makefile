@@ -10,8 +10,9 @@ LDFLAGS = -lssl -lcrypto
 TARGET = imapcl
 
 # Arguments
-#ARGS = imap.pobox.sk -a auth -o cmake-build-debug/msgs -n
-ARGS = imap.pobox.sk -p 993 -T -a auth -o cmake-build-debug/msgs -h
+ARGS = imap.pobox.sk -a auth -o cmake-build-debug/msgs
+#ARGS = imap.pobox.sk -a auth -o cmake-build-debug/msgs -h -n
+#ARGS = imap.pobox.sk -T -a auth -o cmake-build-debug/msgs
 
 # Source files
 SRCS = main.cpp parser.cpp client.cpp error.cpp clientWithoutTLS.cpp clientWithTLS.cpp

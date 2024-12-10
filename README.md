@@ -1,7 +1,7 @@
 # ISA Síťové aplikace a správa sítí - Projekt
 ### IMAP Client with TLS
 
-### Autor: Denys Dumych <xharmi00>
+### Autor: Denys Dumych <xdumyc00>
 
 ### Popis programu
 

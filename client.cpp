@@ -209,7 +209,7 @@ string Client::formatMessageUID() {
  * @return `true` if the response contains "OK", indicating success; `false` otherwise.
  */
 inline bool Client::isOkResponse(const string &response) {
-    return response.find("OK") != -1;
+    return response.find("OK") != std::string::npos;
 }
 
 /**
